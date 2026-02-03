@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+
+export const dynamic = 'force-dynamic';
 import { BellIcon } from '@/components/Icons';
 import toast from 'react-hot-toast';
 

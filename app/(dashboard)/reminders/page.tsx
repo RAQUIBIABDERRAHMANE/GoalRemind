@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 import Modal from '@/components/Modal';
 import { PlusIcon, TrashIcon, CheckIcon, EditIcon, ClockIcon } from '@/components/Icons';
 import toast from 'react-hot-toast';
