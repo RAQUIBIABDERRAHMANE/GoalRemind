@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import RegisterServiceWorker from './register-sw'
+import NotificationChecker from './notification-checker'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -31,6 +32,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <RegisterServiceWorker />
+        <NotificationChecker />
         {children}
         <Toaster position="top-right" />
       </body>
