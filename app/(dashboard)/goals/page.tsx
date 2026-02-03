@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
-import Link from 'next/link';
+
 import Modal from '@/components/Modal';
 import { PlusIcon, TrashIcon, EditIcon, TargetIcon } from '@/components/Icons';
 import toast from 'react-hot-toast';
@@ -20,7 +21,7 @@ interface Goal {
   progressTarget: number;
 }
 
-export default function GoalsPage() {
+function GoalsContent() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -365,5 +366,13 @@ export default function GoalsPage() {
         </form>
       </Modal>
     </div>
+  );
+}
+
+export default function GoalsPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
+      <GoalsContent />
+    </Suspense>
   );
 }

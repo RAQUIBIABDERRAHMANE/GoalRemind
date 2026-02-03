@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Modal from '@/components/Modal';
 
 export const dynamic = 'force-dynamic';
-import Modal from '@/components/Modal';
+
 import { PlusIcon, TrashIcon, CheckIcon, EditIcon, ClockIcon } from '@/components/Icons';
 import toast from 'react-hot-toast';
 
@@ -18,7 +19,7 @@ interface Reminder {
   status: 'pending' | 'done' | 'snoozed';
 }
 
-export default function RemindersPage() {
+function RemindersContent() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -415,5 +416,13 @@ export default function RemindersPage() {
         </form>
       </Modal>
     </div>
+  );
+}
+
+export default function RemindersPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
+      <RemindersContent />
+    </Suspense>
   );
 }

@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { BellIcon } from '@/components/Icons';
 
 export const dynamic = 'force-dynamic';
-import { BellIcon } from '@/components/Icons';
+
 import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
