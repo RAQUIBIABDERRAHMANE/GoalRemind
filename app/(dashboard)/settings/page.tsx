@@ -21,6 +21,7 @@ export default function SettingsPage() {
     
     // Capture the install prompt event
     const handleBeforeInstallPrompt = (e: Event) => {
+      console.log('beforeinstallprompt event captured', e);
       e.preventDefault();
       setDeferredPrompt(e);
     };
@@ -29,9 +30,19 @@ export default function SettingsPage() {
     
     // Check if app is already installed
     window.addEventListener('appinstalled', () => {
+      console.log('App installed');
       setIsInstalled(true);
       setDeferredPrompt(null);
     });
+
+    // Log service worker status
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then(registration => {
+        console.log('Service Worker ready:', registration);
+      }).catch(err => {
+        console.error('Service Worker error:', err);
+      });
+    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
