@@ -12,10 +12,55 @@ export default function SettingsPage() {
   const [notificationsSupported, setNotificationsSupported] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
     checkNotificationSupport();
+    checkIfInstalled();
+    
+    // Capture the install prompt event
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    
+    // Check if app is already installed
+    window.addEventListener('appinstalled', () => {
+      setIsInstalled(true);
+      setDeferredPrompt(null);
+    });
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
+
+  function checkIfInstalled() {
+    // Check if running as PWA
+    if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone) {
+      setIsInstalled(true);
+    }
+  }
+
+  async function handleInstallClick() {
+    if (!deferredPrompt) {
+      toast.error('L\'installation n\'est pas disponible pour le moment');
+      return;
+    }
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+      toast.success('Installation en cours...');
+      setIsInstalled(true);
+    }
+    
+    setDeferredPrompt(null);
+  }
 
   function checkNotificationSupport() {
     if ('Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window) {
@@ -164,14 +209,44 @@ export default function SettingsPage() {
           <p className="text-gray-600">
             GoalRemind peut être installé comme une application sur votre appareil pour une expérience optimale.
           </p>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-medium text-blue-900 mb-2">Comment installer :</h3>
-            <ul className="list-disc list-inside text-sm text-blue-800 space-y-1">
-              <li>Sur Chrome (Desktop) : Cliquez sur l'icône d'installation dans la barre d'adresse</li>
-              <li>Sur Chrome (Android) : Menu → Ajouter à l'écran d'accueil</li>
-              <li>Sur Safari (iOS) : Partager → Ajouter à l'écran d'accueil</li>
-            </ul>
-          </div>
+          
+          {isInstalled ? (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <p className="text-green-800 font-medium">✓ Application déjà installée</p>
+              <p className="text-sm text-green-700 mt-1">
+                L'application est disponible sur votre appareil.
+              </p>
+            </div>
+          ) : (
+            <>
+              {deferredPrompt && (
+                <button
+                  onClick={handleInstallClick}
+                  className="w-full px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Installer l'application
+                </button>
+              )}
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 className="font-medium text-blue-900 mb-2">Comment installer :</h3>
+                <ul className="list-disc list-inside text-sm text-blue-800 space-y-1">
+                  <li><strong>Chrome/Edge (Desktop)</strong> : Cliquez sur l'icône ⊕ dans la barre d'adresse</li>
+                  <li><strong>Chrome (Android)</strong> : Menu (⋮) → Installer l'application</li>
+                  <li><strong>Safari (iOS)</strong> : Partager <svg className="inline w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M16 5l-1.42 1.42-1.59-1.59V16h-1.98V4.83L9.42 6.42 8 5l4-4 4 4zm4 5v11c0 1.1-.9 2-2 2H6c-1.11 0-2-.9-2-2V10c0-1.11.89-2 2-2h3v2H6v11h12V10h-3V8h3c1.1 0 2 .89 2 2z"/></svg> → Ajouter à l'écran d'accueil</li>
+                  <li><strong>Firefox (Android)</strong> : Menu → Installer</li>
+                </ul>
+                {!deferredPrompt && (
+                  <p className="text-xs text-blue-700 mt-3 pt-3 border-t border-blue-200">
+                    💡 Le bouton d'installation automatique apparaîtra après quelques visites sur HTTPS
+                  </p>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
